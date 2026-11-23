@@ -1,1 +1,809 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#171522">
+<title>PULSE</title>
 
+<style>
+:root {
+  --bg: #171522;
+  --panel: #211e31;
+  --panel2: #2b2740;
+  --text: #f5f0ff;
+  --muted: #a69bbd;
+  --accent: #b99aff;
+  --accent2: #9270e5;
+  --bubble: #302b45;
+  --out: #b99aff;
+  --border: #39324f;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+button, input, select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+.app {
+  max-width: 480px;
+  min-height: 100dvh;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+header {
+  padding: 22px 20px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: 3px;
+}
+
+.pulse-icon {
+  color: var(--accent);
+  font-size: 27px;
+}
+
+.network {
+  margin: 0 16px 16px;
+  padding: 11px 14px;
+  background: var(--panel);
+  border-radius: 14px;
+  color: #b8e7cb;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  background: #70d59b;
+  border-radius: 50%;
+}
+
+main {
+  flex: 1;
+  padding: 0 16px 90px;
+}
+
+.page {
+  display: none;
+}
+
+.page.active {
+  display: block;
+}
+
+h2 {
+  font-size: 21px;
+  margin: 10px 0 16px;
+}
+
+.card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 14px;
+  margin-bottom: 10px;
+}
+
+.person {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #a88ae7, #594b7e);
+  display: grid;
+  place-items: center;
+  font-size: 21px;
+  flex-shrink: 0;
+}
+
+.person-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.person-name {
+  font-weight: 650;
+}
+
+.preview {
+  color: var(--muted);
+  font-size: 13px;
+  margin-top: 4px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.time {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.badge {
+  background: var(--accent2);
+  color: white;
+  border-radius: 20px;
+  padding: 3px 8px;
+  font-size: 12px;
+}
+
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 480px;
+  background: var(--panel);
+  border-top: 1px solid var(--border);
+  display: flex;
+  padding: 10px 5px calc(10px + env(safe-area-inset-bottom));
+  z-index: 10;
+}
+
+.nav-btn {
+  flex: 1;
+  background: none;
+  border: none;
+  color: var(--muted);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+}
+
+.nav-btn .icon {
+  font-size: 22px;
+}
+
+.nav-btn.active {
+  color: var(--accent);
+}
+
+.chat-page {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  z-index: 20;
+  max-width: 480px;
+  margin: auto;
+  flex-direction: column;
+}
+
+.chat-page.open {
+  display: flex;
+}
+
+.chat-header {
+  padding: 14px;
+  background: var(--panel);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.back {
+  background: none;
+  border: none;
+  color: var(--text);
+  font-size: 24px;
+}
+
+.chat-title {
+  flex: 1;
+}
+
+.chat-title small {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+  margin-top: 3px;
+}
+
+.mode-select {
+  background: var(--panel2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px;
+  margin: 12px;
+}
+
+.messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.date-label {
+  text-align: center;
+  color: var(--muted);
+  font-size: 12px;
+  margin: 10px;
+}
+
+.msg {
+  max-width: 82%;
+  padding: 11px 13px;
+  border-radius: 17px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.msg.in {
+  background: var(--bubble);
+  align-self: flex-start;
+  border-bottom-left-radius: 5px;
+}
+
+.msg.out {
+  background: var(--out);
+  color: #241a38;
+  align-self: flex-end;
+  border-bottom-right-radius: 5px;
+}
+
+.msg-time {
+  display: block;
+  font-size: 10px;
+  opacity: 0.65;
+  text-align: right;
+  margin-top: 5px;
+}
+
+.composer {
+  display: flex;
+  padding: 12px;
+  gap: 8px;
+  background: var(--panel);
+  padding-bottom: calc(12px + env(safe-area-inset-bottom));
+}
+
+.composer input {
+  flex: 1;
+  min-width: 0;
+  background: var(--panel2);
+  color: var(--text);
+  border: none;
+  border-radius: 22px;
+  padding: 13px;
+  outline: none;
+}
+
+.send {
+  width: 46px;
+  height: 46px;
+  border: none;
+  border-radius: 15px;
+  background: var(--accent);
+  color: #241a38;
+  font-size: 20px;
+}
+
+.add-box {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.add-box input {
+  flex: 1;
+  width: 50%;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 12px;
+  border-radius: 12px;
+}
+
+.primary {
+  border: none;
+  background: var(--accent2);
+  color: white;
+  padding: 12px 15px;
+  border-radius: 12px;
+}
+
+.profile {
+  text-align: center;
+  padding: 25px 10px;
+}
+
+.profile .avatar {
+  margin: auto;
+  width: 86px;
+  height: 86px;
+  font-size: 36px;
+}
+
+.profile input {
+  display: block;
+  width: 100%;
+  margin: 10px 0;
+  padding: 13px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  color: var(--text);
+}
+
+.setting {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.empty {
+  text-align: center;
+  color: var(--muted);
+  padding: 35px 10px;
+}
+
+.toast {
+  position: fixed;
+  bottom: 90px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--panel2);
+  border: 1px solid var(--border);
+  padding: 12px 18px;
+  border-radius: 14px;
+  display: none;
+  z-index: 40;
+  max-width: 90%;
+  text-align: center;
+}
+
+.toast.show {
+  display: block;
+}
+
+@media (prefers-color-scheme: light) {
+  body.light {
+    --bg: #f7f5ef;
+    --panel: #ffffff;
+    --panel2: #eeeaf5;
+    --text: #29243b;
+    --muted: #827a91;
+    --accent: #b89aff;
+    --accent2: #9270d7;
+    --bubble: #eeeaf5;
+    --out: #d7e9de;
+    --border: #e5deed;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<header>
+  <div class="logo">
+    <span class="pulse-icon">〰</span>
+    PULSE
+  </div>
+  <button class="primary" onclick="showPage('friends')">＋</button>
+</header>
+
+<div class="network">
+  <span class="dot"></span>
+  <span id="networkText">PULSE · Прототип</span>
+</div>
+
+<main>
+
+<!-- CHATS -->
+<section class="page active" id="chats">
+  <h2>Сообщения</h2>
+  <div id="chatList"></div>
+</section>
+
+<!-- FRIENDS -->
+<section class="page" id="friends">
+  <h2>Мои подписки</h2>
+
+  <div class="add-box">
+    <input id="friendName" placeholder="Имя друга">
+    <input id="friendId" placeholder="ID друга">
+  </div>
+  <button class="primary" onclick="addFriend()" style="width:100%;margin-bottom:18px">
+    ＋ Добавить человека
+  </button>
+
+  <div id="friendList"></div>
+</section>
+
+<!-- PROFILE -->
+<section class="page" id="profile">
+  <h2>Профиль</h2>
+
+  <div class="card profile">
+    <div class="avatar">💜</div>
+    <h2 id="profileNameDisplay">Пользователь PULSE</h2>
+    <p class="preview" id="myIdDisplay">Мой ID</p>
+  </div>
+
+  <div class="card">
+    <label>Моё имя</label>
+    <input id="myName" placeholder="Введите имя">
+    <button class="primary" onclick="saveProfile()">Сохранить профиль</button>
+  </div>
+
+  <div class="card setting">
+    <span>Светлая тема</span>
+    <button class="primary" onclick="toggleTheme()">☀ / ☾</button>
+  </div>
+
+  <div class="card">
+    <p><b>О приложении</b></p>
+    <p class="preview">PULSE — связь, когда интернет недоступен.</p>
+    <p class="preview">Версия прототипа 0.1</p>
+  </div>
+</section>
+
+</main>
+
+<nav class="bottom-nav">
+  <button class="nav-btn active" onclick="showPage('chats')">
+    <span class="icon">◉</span>Чаты
+  </button>
+  <button class="nav-btn" onclick="showPage('friends')">
+    <span class="icon">♧</span>Подписки
+  </button>
+  <button class="nav-btn" onclick="showPage('profile')">
+    <span class="icon">♙</span>Профиль
+  </button>
+</nav>
+
+</div>
+
+<!-- CHAT WINDOW -->
+<div class="chat-page" id="chatPage">
+
+  <div class="chat-header">
+    <button class="back" onclick="closeChat()">‹</button>
+    <div class="avatar" id="chatAvatar">💜</div>
+    <div class="chat-title">
+      <b id="chatName">Друг</b>
+      <small id="chatSub">PULSE</small>
+    </div>
+  </div>
+
+  <select class="mode-select" id="chatMode" onchange="changeMode()">
+    <option value="online">🌐 Интернет</option>
+    <option value="sms">📡 Без интернета · SMS</option>
+    <option value="auto">🔄 Автоматически</option>
+  </select>
+
+  <div class="messages" id="messages"></div>
+
+  <form class="composer" onsubmit="sendMessage(event)">
+    <input id="messageInput" placeholder="Написать сообщение..." autocomplete="off">
+    <button class="send" type="submit">➤</button>
+  </form>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const STORAGE_KEY = "pulse_v01";
+
+let data = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
+
+if (!data) {
+  data = {
+    myName: "Пользователь",
+    myId: "P-" + Math.random().toString(36).substring(2,8).toUpperCase(),
+    theme: "dark",
+    friends: [
+      {
+        id: "anna",
+        name: "Аня",
+        friendId: "P-ANNA",
+        avatar: "🌷",
+        mode: "online",
+        messages: [
+          {text: "Привет! Ты тут?", incoming: true, time: "17:40"},
+          {text: "Да, я здесь 😊", incoming: false, time: "17:41"},
+          {text: "Как здорово, что можно написать даже без интернета.", incoming: true, time: "17:42"}
+        ]
+      },
+      {
+        id: "max",
+        name: "Максим",
+        friendId: "P-MAX",
+        avatar: "🐈",
+        mode: "auto",
+        messages: [
+          {text: "Буду через 20 минут", incoming: true, time: "16:08"}
+        ]
+      },
+      {
+        id: "sasha",
+        name: "Саша",
+        friendId: "P-SASHA",
+        avatar: "🌿",
+        mode: "sms",
+        messages: []
+      }
+    ]
+  };
+}
+
+function save() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+function esc(str) {
+  return String(str).replace(/[&<>"']/g, c => ({
+    "&":"&amp;", "<":"&lt;", ">":"&gt;",
+    '"':"&quot;", "'":"&#39;"
+  }[c]));
+}
+
+function showPage(page) {
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  document.getElementById(page).classList.add("active");
+
+  document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
+  const pages = ["chats", "friends", "profile"];
+  const index = pages.indexOf(page);
+  if (index >= 0) document.querySelectorAll(".nav-btn")[index].classList.add("active");
+
+  render();
+}
+
+function render() {
+  renderChats();
+  renderFriends();
+  updateProfile();
+}
+
+function renderChats() {
+  const list = document.getElementById("chatList");
+
+  if (!data.friends.length) {
+    list.innerHTML = '<div class="empty">Пока нет чатов.<br>Добавь друга во вкладке «Подписки».</div>';
+    return;
+  }
+
+  list.innerHTML = data.friends.map(f => {
+    const last = f.messages[f.messages.length - 1];
+    return `
+      <div class="card person" onclick="openChat('${f.id}')">
+        <div class="avatar">${esc(f.avatar)}</div>
+        <div class="person-info">
+          <div class="person-name">${esc(f.name)}</div>
+          <div class="preview">${last ? esc(last.text) : "Начать переписку"}</div>
+        </div>
+        <div class="time">${last ? last.time : ""}</div>
+      </div>
+    `;
+  }).join("");
+}
+
+function renderFriends() {
+  const list = document.getElementById("friendList");
+
+  list.innerHTML = data.friends.map(f => `
+    <div class="card person">
+      <div class="avatar">${esc(f.avatar)}</div>
+      <div class="person-info">
+        <div class="person-name">${esc(f.name)}</div>
+        <div class="preview">ID: ${esc(f.friendId)}</div>
+      </div>
+      <button class="primary" onclick="openChat('${f.id}')">Написать</button>
+    </div>
+  `).join("");
+}
+
+let activeFriendId = null;
+
+function openChat(id) {
+  activeFriendId = id;
+  const friend = data.friends.find(f => f.id === id);
+  if (!friend) return;
+
+  document.getElementById("chatPage").classList.add("open");
+  document.getElementById("chatName").textContent = friend.name;
+  document.getElementById("chatAvatar").textContent = friend.avatar;
+  document.getElementById("chatMode").value = friend.mode || "online";
+
+  updateModeLabel();
+  renderMessages();
+}
+
+function closeChat() {
+  document.getElementById("chatPage").classList.remove("open");
+  activeFriendId = null;
+  render();
+}
+
+function renderMessages() {
+  const friend = data.friends.find(f => f.id === activeFriendId);
+  if (!friend) return;
+
+  const box = document.getElementById("messages");
+
+  box.innerHTML = '<div class="date-label">Сегодня</div>' +
+    friend.messages.map(m => `
+      <div class="msg ${m.incoming ? "in" : "out"}">
+        ${esc(m.text)}
+        <span class="msg-time">${m.time}${m.incoming ? "" : " ✓"}</span>
+      </div>
+    `).join("");
+
+  box.scrollTop = box.scrollHeight;
+}
+
+function sendMessage(event) {
+  event.preventDefault();
+
+  const input = document.getElementById("messageInput");
+  const text = input.value.trim();
+  if (!text || !activeFriendId) return;
+
+  const friend = data.friends.find(f => f.id === activeFriendId);
+  friend.messages.push({
+    text,
+    incoming: false,
+    time: new Date().toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"})
+  });
+
+  input.value = "";
+  save();
+  renderMessages();
+  renderChats();
+
+  toast("Сообщение добавлено в прототип. Реальная отправка пока не подключена.");
+}
+
+function changeMode() {
+  const friend = data.friends.find(f => f.id === activeFriendId);
+  if (!friend) return;
+
+  friend.mode = document.getElementById("chatMode").value;
+  save();
+  updateModeLabel();
+
+  const labels = {
+    online: "Интернет",
+    sms: "SMS",
+    auto: "Автоматический режим"
+  };
+
+  toast("Выбран режим: " + labels[friend.mode] + " (пока демонстрация)");
+}
+
+function updateModeLabel() {
+  const friend = data.friends.find(f => f.id === activeFriendId);
+  if (!friend) return;
+
+  const labels = {
+    online: "Интернет · прототип",
+    sms: "SMS · прототип",
+    auto: "Автоматически · прототип"
+  };
+
+  document.getElementById("chatSub").textContent = labels[friend.mode];
+}
+
+function addFriend() {
+  const name = document.getElementById("friendName").value.trim();
+  const friendId = document.getElementById("friendId").value.trim();
+
+  if (!name || !friendId) {
+    toast("Введи имя и ID друга");
+    return;
+  }
+
+  if (data.friends.some(f => f.friendId.toLowerCase() === friendId.toLowerCase())) {
+    toast("Такой ID уже добавлен");
+    return;
+  }
+
+  data.friends.push({
+    id: "f-" + Date.now(),
+    name,
+    friendId,
+    avatar: "💜",
+    mode: "online",
+    messages: []
+  });
+
+  document.getElementById("friendName").value = "";
+  document.getElementById("friendId").value = "";
+
+  save();
+  render();
+  toast("Друг добавлен в твой список!");
+}
+
+function saveProfile() {
+  const name = document.getElementById("myName").value.trim();
+  if (!name) {
+    toast("Введи своё имя");
+    return;
+  }
+
+  data.myName = name;
+  save();
+  updateProfile();
+  toast("Профиль сохранён");
+}
+
+function updateProfile() {
+  document.getElementById("myName").value = data.myName;
+  document.getElementById("profileNameDisplay").textContent = data.myName;
+  document.getElementById("myIdDisplay").textContent = "ID: " + data.myId;
+}
+
+function toggleTheme() {
+  data.theme = data.theme === "dark" ? "light" : "dark";
+  document.body.classList.toggle("light", data.theme === "light");
+  save();
+  toast(data.theme === "light" ? "Светлая тема" : "Тёмная тема");
+}
+
+function toast(text) {
+  const t = document.getElementById("toast");
+  t.textContent = text;
+  t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 2500);
+}
+
+// Init
+if (data.theme === "light") {
+  document.body.classList.add("light");
+}
+
+save();
+render();
+</script>
+
+</body>
+      </html>
